@@ -1,3 +1,32 @@
-.env
+# --- Python Environment ---
 __pycache__/
-*.png
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+build/
+dist/
+
+# --- Environment Variables (CRITICAL) ---
+# Never upload your API keys!
+.env
+
+# --- Project Specific Data ---
+# Ignore all input images (avoid bloating the repo)
+inputs/*
+# Allow the inputs directory itself to be tracked if it contains a .gitkeep
+!.gitkeep
+
+# Ignore all generated analysis and code
+outputs/*
+!.gitkeep
+
+# --- IDEs & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
