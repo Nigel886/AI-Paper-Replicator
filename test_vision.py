@@ -31,9 +31,15 @@ def analyze_with_new_sdk(image_path):
         response = client.models.generate_content(
             model="models/gemini-flash-latest", 
             contents=[
-                "You are a world-class AI Architect. Please analyze this paper screenshot, "
-                "extract its model logic, and implement the architecture using PyTorch code.",
-                img
+                "You are a Senior AI Research Engineer specializing in computer vision and deep learning. "
+            "Your mission is to analyze academic paper screenshots and provide high-quality, "
+            "production-ready PyTorch code. \n\n"
+            "Rules:\n"
+            "1. Focus on the core model architecture (layers, forward pass, activation functions).\n"
+            "2. Always include tensor shape comments for each major operation (e.g., # [B, 64, 56, 56]).\n"
+            "3. Use modular design (subclassing nn.Module).\n"
+            "4. If multiple interpretations exist, choose the most standard one in modern research.",
+            img
             ]
         )
         
