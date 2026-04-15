@@ -8,13 +8,19 @@ class PaperReplicator:
         self.client = genai.Client(api_key=api_key)
         self.model_id = "models/gemini-flash-latest"
 
-    def analyze_single_paper(self, image_path):
-        """Analyze a single image and return the raw text response."""
-        if not os.path.exists(image_path):
+    def analyze_paper_set(self, image_paths):
+        """Analyze a list of images and return the raw text response."""
+        valid_images = []
+        for path in image_paths:
+            try:
+                valid_images.append(Image.open(path))
+            except Exception as e:
+                print(f"⚠️ Warning: Could not open {path}: {e}")
+
+        if not valid_images:
             return None
 
-        img = Image.open(image_path)
-        
+        # --- Your High-Standard Prompt Stays Here ---
         prompt = (
             "You are a Senior AI Research Engineer specializing in computer vision and deep learning. "
             "Your mission is to analyze academic paper screenshots and provide high-quality, "
@@ -28,10 +34,10 @@ class PaperReplicator:
 
         for attempt in range(3):
             try:
-                print(f"🚀 [Attempt {attempt+1}] Analyzing image...")
+                print(f"🚀 [Attempt {attempt+1}] Analyzing {len(valid_images)} images...")
                 response = self.client.models.generate_content(
                     model=self.model_id,
-                    contents=[prompt, img]
+                    contents=[prompt] + valid_images
                 )
                 return response.text
             except Exception as e:
