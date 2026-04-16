@@ -1,50 +1,89 @@
-import time
-from PIL import Image
-from google import genai
-from google.genai import types
+import google.generativeai as genai
+import os
+import PIL.Image
 
 class PaperReplicator:
     def __init__(self, api_key):
-        self.client = genai.Client(api_key=api_key)
-        self.model_id = "models/gemini-flash-latest"
+        """
+        Initialize the Gemini engine with the stable production model.
+        """
+        if not api_key:
+            print("[Critical] API Key is missing! Check your .env file.")
+        
+        genai.configure(api_key=api_key)
+        # Using gemini-1.5-flash: Stable, multimodal, and publicly available.
+        # Ensure you run 'pip install -U google-generativeai' to support this model.
+        self.model = genai.GenerativeModel('gemini-flash-latest')
 
     def analyze_paper_set(self, image_paths):
-        """Analyze a list of images and return the raw text response."""
-        valid_images = []
+        """
+        Analyzes paper images and returns a structured report.
+        """
+        # Raw string (r"") is used to handle LaTeX backslashes without SyntaxWarnings
+        prompt = r"""
+        You are a world-class AI research engineer specializing in paper replication.
+        I will provide you with images containing parts of a research paper (architecture, formulas, or descriptions).
+        
+        Your goal is to replicate the core logic into clean, runnable Python code.
+        
+        STRICT OUTPUT FORMAT:
+        You must organize your response into exactly three sections using these exact Markdown headers:
+        
+        ## 1. Overview
+        Provide a concise summary of the paper's core innovation and mathematical objective. Use LaTeX for formulas (e.g., $ \phi $).
+        
+        ## 2. Implementation Code
+        Provide the complete, well-commented Python implementation. Wrap the code in triple backticks: ```python [code] ```.
+        
+        ## 3. Key Engineering Insights
+        List the most critical implementation details, hyperparameters, or training nuances found in the paper as bullet points.
+        
+        Begin the analysis now.
+        """
+        
+        contents = [prompt]
+        
+        # 1. Load and Verify Images
+        valid_images = 0
         for path in image_paths:
-            try:
-                valid_images.append(Image.open(path))
-            except Exception as e:
-                print(f"⚠️ Warning: Could not open {path}: {e}")
+            if os.path.exists(path):
+                try:
+                    img = PIL.Image.open(path)
+                    # Ensuring RGB compatibility for standardized processing
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    contents.append(img)
+                    valid_images += 1
+                except Exception as e:
+                    print(f"[Engine] Error processing image {path}: {e}")
+        
+        if valid_images == 0:
+            return "## 1. Overview\nError: No valid images found.\n\n## 2. Implementation Code\n# No images were processed.\n\n## 3. Key Engineering Insights\n* Please ensure you are uploading valid image files."
 
-        if not valid_images:
-            return None
+        # 2. Call Gemini API with safety handling
+        try:
+            print(f"[Engine] Sending {valid_images} images to Gemini...")
+            response = self.model.generate_content(contents)
+            
+            if not response.text:
+                raise ValueError("Empty response from AI.")
+                
+            return response.text
 
-        # --- Your High-Standard Prompt Stays Here ---
-        prompt = (
-            "You are a Senior AI Research Engineer specializing in computer vision and deep learning. "
-            "Your mission is to analyze academic paper screenshots and provide high-quality, "
-            "production-ready PyTorch code. \n\n"
-            "Rules:\n"
-            "1. Focus on the core model architecture (layers, forward pass, activation functions).\n"
-            "2. Always include tensor shape comments for each major operation (e.g., # [B, 64, 56, 56]).\n"
-            "3. Use modular design (subclassing nn.Module).\n"
-            "4. If multiple interpretations exist, choose the most standard one in modern research."
-        )
+        except Exception as e:
+            # Detailed error reporting to the frontend UI
+            error_details = str(e)
+            print(f"[Engine] API Call Failed: {error_details}")
+            
+            return f"""## 1. Overview
+Analysis Failed.
 
-        for attempt in range(3):
-            try:
-                print(f"🚀 [Attempt {attempt+1}] Analyzing {len(valid_images)} images...")
-                response = self.client.models.generate_content(
-                    model=self.model_id,
-                    contents=[prompt] + valid_images
-                )
-                return response.text
-            except Exception as e:
-                if "429" in str(e) or "503" in str(e):
-                    wait = (attempt + 1) * 15
-                    print(f"⏳ Server busy, retrying in {wait}s...")
-                    time.sleep(wait)
-                else:
-                    raise e
-        return None
+## 2. Implementation Code
+# ERROR: {error_details}
+# Potential Fixes:
+# 1. Run 'pip install -U google-generativeai' to support 1.5 models.
+# 2. Check if your API Key has access to 'gemini-1.5-flash' in Google AI Studio.
+# 3. Verify your internet connection or proxy settings.
+
+## 3. Key Engineering Insights
+* Execution failed at the API layer. Technical details: {error_details[:100]}..."""
