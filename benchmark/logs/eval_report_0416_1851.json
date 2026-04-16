@@ -1,0 +1,122 @@
+[
+    {
+        "filename": "sample_01.png",
+        "prediction": "L^{CLIP}(\\theta) = \\hat{\\mathbb{E}}_t [\\min(r_t(\\theta)\\hat{A}_t, \\text{clip}(r_t(\\theta), 1 - \\epsilon, 1 + \\epsilon)\\hat{A}_t)]",
+        "timestamp": "2026-04-16T18:46:48.976912",
+        "status": "success"
+    },
+    {
+        "filename": "sample_02.png",
+        "prediction": "Q^*(s, a) = \\mathbb{E}_{s'}[r + \\gamma \\max_{a'} Q^*(s', a') \\mid s, a]",
+        "timestamp": "2026-04-16T18:47:01.678123",
+        "status": "success"
+    },
+    {
+        "filename": "sample_03.png",
+        "prediction": "J(\\pi) = \\sum_{t=0}^{T} \\mathbb{E}_{(s_t, a_t) \\sim \\rho_\\pi} [r(s_t, a_t) + \\alpha H(\\pi(\\cdot | s_t))]",
+        "timestamp": "2026-04-16T18:47:18.844596",
+        "status": "success"
+    },
+    {
+        "filename": "sample_04.png",
+        "prediction": "H^{(l+1)} = \\sigma \\left( \\tilde{D}^{-\\frac{1}{2}} \\tilde{A} \\tilde{D}^{-\\frac{1}{2}} H^{(l)} W^{(l)} \\right)",
+        "timestamp": "2026-04-16T18:47:34.373319",
+        "status": "success"
+    },
+    {
+        "filename": "sample_05.png",
+        "prediction": "e_{ij} = \\text{LeakyReLU}\\left(\\mathbf{a}^{T}[\\mathbf{W} \\mathbf{h}_{i} \\| \\mathbf{W} \\mathbf{h}_{j}]\\right)",
+        "timestamp": "2026-04-16T18:48:01.078783",
+        "status": "success"
+    },
+    {
+        "filename": "sample_06.png",
+        "prediction": "\\mathrm{Attention}(Q, K, V) = \\mathrm{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V",
+        "timestamp": "2026-04-16T18:48:14.718533",
+        "status": "success"
+    },
+    {
+        "filename": "sample_07.png",
+        "prediction": "\\mathcal{L}(\\theta, \\phi; x) = \\mathbb{E}_{q_{\\phi}(z|x)}[\\log p_{\\theta}(x \\mid z)] - D_{KL}(q_{\\phi}(z \\mid x) \\| p_{\\theta}(z))",
+        "timestamp": "2026-04-16T18:48:25.466685",
+        "status": "success"
+    },
+    {
+        "filename": "sample_08.png",
+        "prediction": "p_\\theta(x_{t-1} | x_t) = \\mathcal{N}(x_{t-1}; \\mu_\\theta(x_t, t), \\Sigma_\\theta(x_t, t))",
+        "timestamp": "2026-04-16T18:48:34.442038",
+        "status": "success"
+    },
+    {
+        "filename": "sample_09.png",
+        "prediction": "A = U \\Sigma V^T = \\sum_{i=1}^r \\sigma_i u_i v_i^T",
+        "timestamp": "2026-04-16T18:48:38.591986",
+        "status": "success"
+    },
+    {
+        "filename": "sample_10.png",
+        "prediction": "f(\\mathbf{x}) \\approx f(\\mathbf{a}) + \\nabla f(\\mathbf{a})^T (\\mathbf{x} - \\mathbf{a}) + \\frac{1}{2} (\\mathbf{x} - \\mathbf{a})^T \\mathbf{H}(\\mathbf{a}) (\\mathbf{x} - \\mathbf{a})",
+        "timestamp": "2026-04-16T18:48:55.947216",
+        "status": "success"
+    },
+    {
+        "filename": "sample_11.png",
+        "prediction": "F(s, a, s') = \\gamma \\Phi(s') - \\Phi(s)",
+        "timestamp": "2026-04-16T18:49:25.314567",
+        "status": "success"
+    },
+    {
+        "filename": "sample_12.png",
+        "prediction": "\\mathcal{L} = -\\log \\frac{\\exp(\\text{sim}(z_i, z_j) / \\tau)}{\\sum_{k=1}^{2N} 1_{[k \\neq i]} \\exp(\\text{sim}(z_i, z_k) / \\tau)}",
+        "timestamp": "2026-04-16T18:49:44.154371",
+        "status": "success"
+    },
+    {
+        "filename": "sample_13.png",
+        "prediction": "\\theta_{t+1} = \\theta_t - \\frac{\\eta}{\\sqrt{\\hat{v}_t} + \\epsilon} \\hat{m}_t",
+        "timestamp": "2026-04-16T18:50:07.195084",
+        "status": "success"
+    },
+    {
+        "filename": "sample_14.png",
+        "prediction": "J = \\int_0^\\infty (x^T Qx + u^T Ru) dt",
+        "timestamp": "2026-04-16T18:50:12.726132",
+        "status": "success"
+    },
+    {
+        "filename": "sample_15.png",
+        "prediction": "m_v^{(k+1)} = \\sum_{u \\in \\mathcal{N}(v)} \\phi_k(h_v^{(k)}, h_u^{(k)}, e_{uv}^{(k)})",
+        "timestamp": "2026-04-16T18:50:16.669259",
+        "status": "success"
+    },
+    {
+        "filename": "sample_16.png",
+        "prediction": "p(\\theta | D) = \\frac{p(D|\\theta)p(\\theta)}{\\int p(D|\\theta')p(\\theta')d\\theta'}",
+        "timestamp": "2026-04-16T18:50:35.456275",
+        "status": "success"
+    },
+    {
+        "filename": "sample_17.png",
+        "prediction": "X_k = \\sum_{n=0}^{N-1} x_n e^{-i2\\pi kn/N}",
+        "timestamp": "2026-04-16T18:50:40.412798",
+        "status": "success"
+    },
+    {
+        "filename": "sample_18.png",
+        "prediction": "y = \\beta_0 + \\beta_1 x + \\beta_2 x^2 + \\cdots + \\beta_n x^n + \\epsilon",
+        "timestamp": "2026-04-16T18:50:56.681660",
+        "status": "success"
+    },
+    {
+        "filename": "sample_19.png",
+        "prediction": "\\min_G \\max_D V(D, G) = \\mathbb{E}_{x \\sim p_{data}(x)}[\\log D(x)] + \\mathbb{E}_{z \\sim p_z(z)}[\\log(1 - D(G(z)))]",
+        "timestamp": "2026-04-16T18:51:08.112780",
+        "status": "success"
+    },
+    {
+        "filename": "sample_20.png",
+        "prediction": "\\int_{-\\infty}^{\\infty} e^{-ax^2} dx = \\sqrt{\\frac{\\pi}{a}}",
+        "timestamp": "2026-04-16T18:51:12.468639",
+        "status": "success"
+    }
+]

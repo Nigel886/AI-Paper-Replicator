@@ -12,14 +12,38 @@ class PaperReplicator:
         
         genai.configure(api_key=api_key)
         # Using gemini-1.5-flash: Stable, multimodal, and publicly available.
-        # Ensure you run 'pip install -U google-generativeai' to support this model.
         self.model = genai.GenerativeModel('gemini-flash-latest')
+
+    def infer(self, image_path, prompt):
+        """
+        [New] Specialized inference method for expert processors.
+        Handles single image analysis with task-specific prompts.
+        """
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"Image not found at: {image_path}")
+
+        try:
+            # Standardizing image format for better VLM consistency
+            img = PIL.Image.open(image_path)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Direct multimodal call
+            response = self.model.generate_content([prompt, img])
+            
+            if not response or not response.text:
+                return ""
+            return response.text
+            
+        except Exception as e:
+            print(f"[Engine] Inference Error: {e}")
+            raise e
 
     def analyze_paper_set(self, image_paths):
         """
-        Analyzes paper images and returns a structured report.
+        Analyzes a set of paper images and returns a structured full-report.
+        Maintains backward compatibility with the original project logic.
         """
-        # Raw string (r"") is used to handle LaTeX backslashes without SyntaxWarnings
         prompt = r"""
         You are a world-class AI research engineer specializing in paper replication.
         I will provide you with images containing parts of a research paper (architecture, formulas, or descriptions).
@@ -49,7 +73,6 @@ class PaperReplicator:
             if os.path.exists(path):
                 try:
                     img = PIL.Image.open(path)
-                    # Ensuring RGB compatibility for standardized processing
                     if img.mode != 'RGB':
                         img = img.convert('RGB')
                     contents.append(img)
@@ -62,7 +85,7 @@ class PaperReplicator:
 
         # 2. Call Gemini API with safety handling
         try:
-            print(f"[Engine] Sending {valid_images} images to Gemini...")
+            print(f"[Engine] Sending {valid_images} images to Gemini for full analysis...")
             response = self.model.generate_content(contents)
             
             if not response.text:
@@ -71,7 +94,6 @@ class PaperReplicator:
             return response.text
 
         except Exception as e:
-            # Detailed error reporting to the frontend UI
             error_details = str(e)
             print(f"[Engine] API Call Failed: {error_details}")
             
@@ -80,10 +102,6 @@ Analysis Failed.
 
 ## 2. Implementation Code
 # ERROR: {error_details}
-# Potential Fixes:
-# 1. Run 'pip install -U google-generativeai' to support 1.5 models.
-# 2. Check if your API Key has access to 'gemini-1.5-flash' in Google AI Studio.
-# 3. Verify your internet connection or proxy settings.
 
 ## 3. Key Engineering Insights
 * Execution failed at the API layer. Technical details: {error_details[:100]}..."""
