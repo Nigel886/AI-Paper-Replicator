@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import os
 import PIL.Image
+from .processors import DualStageProcessor
 
 class PaperReplicator:
     def __init__(self, api_key):
@@ -38,6 +39,13 @@ class PaperReplicator:
         except Exception as e:
             print(f"[Engine] Inference Error: {e}")
             raise e
+
+    def dual_stage_analyze(self, image_path):
+        """
+        Runs the Two-Stage Prompting strategy on a single image.
+        """
+        processor = DualStageProcessor(self)
+        return processor.process(image_path)
 
     def analyze_paper_set(self, image_paths):
         """
