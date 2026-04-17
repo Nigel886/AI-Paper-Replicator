@@ -52,23 +52,23 @@ class PaperReplicator:
             print(f"[Engine] Inference Error after retries: {e}")
             raise e
 
-    def dual_stage_analyze(self, image_path):
+    def dual_stage_analyze(self, image_path, framework="PyTorch"):
         """
         Runs the Two-Stage Prompting strategy on a single image.
         """
-        processor = DualStageProcessor(self)
+        processor = DualStageProcessor(self, framework=framework)
         return processor.process(image_path)
 
-    def analyze_paper_set(self, image_paths):
+    def analyze_paper_set(self, image_paths, framework="PyTorch"):
         """
         Analyzes a set of paper images and returns a structured full-report.
         Maintains backward compatibility with the original project logic.
         """
-        prompt = r"""
+        prompt = rf"""
         You are a world-class AI research engineer specializing in paper replication.
         I will provide you with images containing parts of a research paper (architecture, formulas, or descriptions).
         
-        Your goal is to replicate the core logic into clean, runnable Python code.
+        Your goal is to replicate the core logic into clean, runnable {framework} code.
         
         STRICT OUTPUT FORMAT:
         You must organize your response into exactly three sections using these exact Markdown headers:
@@ -77,7 +77,7 @@ class PaperReplicator:
         Provide a concise summary of the paper's core innovation and mathematical objective. Use LaTeX for formulas (e.g., $ \phi $).
         
         ## 2. Implementation Code
-        Provide the complete, well-commented Python implementation. Wrap the code in triple backticks: ```python [code] ```.
+        Provide the complete, well-commented {framework} implementation. Wrap the code in triple backticks: ```python [code] ```.
         
         ## 3. Key Engineering Insights
         List the most critical implementation details, hyperparameters, or training nuances found in the paper as bullet points.

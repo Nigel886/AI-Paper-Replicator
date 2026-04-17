@@ -37,7 +37,8 @@ def cleanup_temp_files(file_paths: List[str]):
 async def replicate_paper(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(..., description="Upload multiple paper screenshots"),
-    output_name: str = Form("model.py")
+    output_name: str = Form("model.py"),
+    framework: str = Form("PyTorch")
 ):
     # 1. Setup workspace
     temp_dir = "temp"
@@ -53,7 +54,7 @@ async def replicate_paper(
     
     # 3. Trigger Engine Analysis
     # The engine now returns structured Markdown with ## headers
-    raw_response = replicator.analyze_paper_set(temp_paths)
+    raw_response = replicator.analyze_paper_set(temp_paths, framework=framework)
 
     # 4. Schedule Cleanup
     background_tasks.add_task(cleanup_temp_files, temp_paths)
@@ -69,6 +70,7 @@ from typing import List, Optional
 
 class ArxivRequest(BaseModel):
     arxiv_id: str
+    framework: Optional[str] = "PyTorch"
 
 @app.post("/replicate_arxiv")
 async def replicate_arxiv(request: ArxivRequest):
@@ -77,8 +79,8 @@ async def replicate_arxiv(request: ArxivRequest):
     """
     from mcp_server import replicate_from_arxiv
     
-    print(f"[API] Triggering ArXiv Replication for ID: {request.arxiv_id}")
-    result = replicate_from_arxiv(request.arxiv_id)
+    print(f"[API] Triggering ArXiv Replication for ID: {request.arxiv_id} with {request.framework}")
+    result = replicate_from_arxiv(request.arxiv_id, framework=request.framework)
     
     return {
         "status": "success",

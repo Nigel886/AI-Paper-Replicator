@@ -9,16 +9,16 @@ class LogicValidator:
     """
 
     def __init__(self):
-        # 常见数学算子到 Python/PyTorch 函数的映射
+        # 常见数学算子到 Python/PyTorch/JAX/TF 函数的映射
         self.operator_map = {
-            "sum": ["sum", "torch.sum", "keepdim=True"],
-            "max": ["max", "torch.max", "argmax"],
-            "mean": ["mean", "torch.mean", "avg_pool"],
-            "exp": ["exp", "torch.exp"],
-            "log": ["log", "torch.log"],
-            "softmax": ["softmax", "F.softmax", "torch.nn.functional.softmax"],
-            "expectation": ["mean", "sum", "weighted_sum"], # 期望通常通过加权和或均值实现
-            "matmul": ["matmul", "mm", "@", "bmm", "linear"]
+            "sum": ["sum", "torch.sum", "jnp.sum", "tf.reduce_sum", "keepdim=True"],
+            "max": ["max", "torch.max", "jnp.max", "tf.reduce_max", "argmax"],
+            "mean": ["mean", "torch.mean", "jnp.mean", "tf.reduce_mean", "avg_pool"],
+            "exp": ["exp", "torch.exp", "jnp.exp", "tf.exp"],
+            "log": ["log", "torch.log", "jnp.log", "tf.math.log"],
+            "softmax": ["softmax", "F.softmax", "jax.nn.softmax", "tf.nn.softmax"],
+            "expectation": ["mean", "sum", "weighted_sum"],
+            "matmul": ["matmul", "mm", "@", "bmm", "linear", "jnp.dot", "tf.matmul"]
         }
 
     def validate_consistency(self, code, logic_spec_json):

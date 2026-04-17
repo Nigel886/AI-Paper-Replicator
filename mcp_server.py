@@ -21,12 +21,13 @@ arxiv_downloader = ArxivDownloader()
 pdf_processor = PdfProcessor()
 
 @mcp.tool()
-def replicate_from_arxiv(arxiv_id: str) -> str:
+def replicate_from_arxiv(arxiv_id: str, framework: str = "PyTorch") -> str:
     """
     通过 ArXiv ID 自动下载论文，识别其中的算法框图 (Algorithms)，并将其转化为 Python 类定义。
     
     Args:
         arxiv_id: ArXiv 编号 (例如 '2305.16300')
+        framework: 目标框架 (PyTorch, JAX, TensorFlow)
     """
     try:
         # 1. 下载 PDF
@@ -36,7 +37,7 @@ def replicate_from_arxiv(arxiv_id: str) -> str:
         image_paths = pdf_processor.pdf_to_images(pdf_path, max_pages=10)
         
         results = []
-        results.append(f"## ArXiv ID: {arxiv_id} 自动复现报告\n")
+        results.append(f"## ArXiv ID: {arxiv_id} 自动复现报告 ({framework})\n")
         
         found_algorithm = False
         for img_path in image_paths:
@@ -52,15 +53,15 @@ def replicate_from_arxiv(arxiv_id: str) -> str:
                 # 4. 使用 DualStageProcessor 处理该页
                 # 调整 prompt 使其输出为 Python Class
                 processor.action_b_template = (
-                    "Convert the following LaTeX/Pseudocode into a clean Python Class.\n"
-                    "Formula/Algo: {latex}\n"
+                    "Convert the following LaTeX/Pseudocode into a clean Python Class using {framework}.\n"
+                    "Formula/Algo: {{latex}}\n"
                     "Requirements:\n"
                     "1. Use a Class structure, implement the main logic in a method.\n"
                     "2. Include docstrings and shape annotations.\n"
                     "3. Provide the Shape Dictionary and Logic Spec JSONs at the end."
                 )
                 
-                res = processor.process(img_path)
+                res = processor.process(img_path, framework=framework)
                 
                 if res.get("validated"):
                     results.append(f"```python\n{res.get('code')}\n```")

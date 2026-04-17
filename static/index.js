@@ -10,6 +10,7 @@ const modeArxiv = document.getElementById('mode-arxiv');
 const uploadContainer = document.getElementById('upload-container');
 const arxivContainer = document.getElementById('arxiv-container');
 const arxivInput = document.getElementById('arxiv-input');
+const frameworkSelect = document.getElementById('framework-select');
 
 let currentMode = 'upload'; // 'upload' or 'arxiv'
 
@@ -155,6 +156,7 @@ replicateBtn.onclick = async () => {
             const formData = new FormData();
             selectedFiles.forEach(file => formData.append('files', file));
             formData.append('output_name', 'model.py');
+            formData.append('framework', frameworkSelect.value);
 
             const response = await fetch('/replicate', {
                 method: 'POST',
@@ -165,7 +167,10 @@ replicateBtn.onclick = async () => {
             const response = await fetch('/replicate_arxiv', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ arxiv_id: arxivInput.value.trim() })
+                body: JSON.stringify({ 
+                    arxiv_id: arxivInput.value.trim(),
+                    framework: frameworkSelect.value
+                })
             });
             data = await response.json();
         }

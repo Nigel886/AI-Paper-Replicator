@@ -11,8 +11,9 @@ class DualStageProcessor(BaseProcessor):
     2. Logic Consistency Validation (Structural check)
     """
     
-    def __init__(self, engine):
+    def __init__(self, engine, framework="PyTorch"):
         super().__init__(engine)
+        self.framework = framework
         self.shape_validator = ShapeValidator()
         self.logic_validator = LogicValidator()
         
@@ -24,7 +25,7 @@ class DualStageProcessor(BaseProcessor):
         )
         
         self.action_b_template = (
-            "Convert the following LaTeX formula into a PyTorch function.\n"
+            "Convert the following LaTeX formula into a {framework} function.\n"
             "Formula: {latex}\n"
             "Requirements:\n"
             "1. Use clear variable names, include docstrings defining tensor shapes.\n"
@@ -42,7 +43,8 @@ class DualStageProcessor(BaseProcessor):
             "```"
         )
 
-    def process(self, image_path, **kwargs):
+    def process(self, image_path, framework=None, **kwargs):
+        target_framework = framework or self.framework
         # --- Action A: Vision-to-LaTeX ---
         print(f"[PureRepro] Action A: Extracting LaTeX...")
         raw_latex = self.engine.infer(image_path, self.action_a_prompt)
@@ -52,7 +54,7 @@ class DualStageProcessor(BaseProcessor):
             return {"error": "Action A failed."}
 
         # --- Action B: LaTeX-to-Code with Dual-Loop ---
-        current_prompt = self.action_b_template.format(latex=latex_output)
+        current_prompt = self.action_b_template.format(latex=latex_output, framework=target_framework)
         
         max_corrections = 2
         for attempt in range(max_corrections + 1):
