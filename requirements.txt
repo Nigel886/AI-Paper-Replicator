@@ -5,3 +5,6 @@ uvicorn
 python-multipart
 tenacity
 torch
+fastmcp
+arxiv
+pymupdf

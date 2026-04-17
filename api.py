@@ -64,6 +64,27 @@ async def replicate_paper(
         "suggested_filename": output_name
     }
 
+from pydantic import BaseModel
+from typing import List, Optional
+
+class ArxivRequest(BaseModel):
+    arxiv_id: str
+
+@app.post("/replicate_arxiv")
+async def replicate_arxiv(request: ArxivRequest):
+    """
+    Endpoint to trigger the full ArXiv replication flow.
+    """
+    from mcp_server import replicate_from_arxiv
+    
+    print(f"[API] Triggering ArXiv Replication for ID: {request.arxiv_id}")
+    result = replicate_from_arxiv(request.arxiv_id)
+    
+    return {
+        "status": "success",
+        "analysis": result
+    }
+
 def custom_openapi():
     """Injects 'format: binary' into OpenAPI schema to fix Swagger UI file buttons."""
     if app.openapi_schema:

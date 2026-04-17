@@ -46,21 +46,49 @@
             <p class="text-lg text-slate-600 font-medium tracking-wide">Professional AI Paper Replication Engine</p>
         </div>
 
-        <!-- Image Upload Area -->
-        <div id="drop-zone" class="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-10 text-center transition-all cursor-pointer hover:border-blue-400 group mb-8 shadow-sm">
-            <input type="file" id="file-input" multiple class="hidden" accept="image/*">
-            <div class="space-y-4">
-                <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                    <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
+        <!-- Mode Switcher -->
+        <div class="flex justify-center space-x-4 mb-8">
+            <button id="mode-upload" class="px-6 py-2 rounded-full font-bold transition-all bg-slate-900 text-white shadow-lg">Screenshot Mode</button>
+            <button id="mode-arxiv" class="px-6 py-2 rounded-full font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">ArXiv Mode</button>
+        </div>
+
+        <!-- Image Upload Area (Screenshot Mode) -->
+        <div id="upload-container">
+            <div id="drop-zone" class="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-10 text-center transition-all cursor-pointer hover:border-blue-400 group mb-8 shadow-sm">
+                <input type="file" id="file-input" multiple class="hidden" accept="image/*">
+                <div class="space-y-4">
+                    <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xl font-semibold text-slate-800">Drag & drop paper excerpts here</p>
+                        <p class="text-slate-500 mt-1 text-sm">Upload architecture diagrams, formulas, or method descriptions for concurrent analysis</p>
+                    </div>
+                    <!-- Preview Container -->
+                    <div id="preview-container" class="flex flex-wrap gap-3 justify-center mt-6"></div>
                 </div>
-                <div>
-                    <p class="text-xl font-semibold text-slate-800">Drag & drop paper excerpts here</p>
-                    <p class="text-slate-500 mt-1 text-sm">Upload architecture diagrams, formulas, or method descriptions for concurrent analysis</p>
+            </div>
+        </div>
+
+        <!-- ArXiv Input Area (ArXiv Mode) -->
+        <div id="arxiv-container" class="hidden">
+            <div class="bg-white border border-slate-200 rounded-3xl p-10 text-center mb-8 shadow-sm">
+                <div class="space-y-6 max-w-md mx-auto">
+                    <div class="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xl font-semibold text-slate-800">Enter ArXiv ID</p>
+                        <p class="text-slate-500 mt-1 text-sm">Download paper automatically and extract all algorithm blocks</p>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="arxiv-input" placeholder="e.g. 2305.16300" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-center font-bold text-lg">
+                    </div>
                 </div>
-                <!-- Preview Container -->
-                <div id="preview-container" class="flex flex-wrap gap-3 justify-center mt-6"></div>
             </div>
         </div>
 

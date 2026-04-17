@@ -4,6 +4,8 @@ import sys
 import logging
 from core.engine import PaperReplicator
 from core.processors.dual_stage_processor import DualStageProcessor
+from core.utils.arxiv_downloader import ArxivDownloader
+from core.utils.pdf_processor import PdfProcessor
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -13,9 +15,69 @@ logger = logging.getLogger("PureRepro-MCP")
 mcp = FastMCP("PureRepro")
 
 # 初始化核心引擎
-# 注意：这里假设 .env 文件在当前目录中，包含 GEMINI_API_KEY
 engine = PaperReplicator()
 processor = DualStageProcessor(engine)
+arxiv_downloader = ArxivDownloader()
+pdf_processor = PdfProcessor()
+
+@mcp.tool()
+def replicate_from_arxiv(arxiv_id: str) -> str:
+    """
+    通过 ArXiv ID 自动下载论文，识别其中的算法框图 (Algorithms)，并将其转化为 Python 类定义。
+    
+    Args:
+        arxiv_id: ArXiv 编号 (例如 '2305.16300')
+    """
+    try:
+        # 1. 下载 PDF
+        pdf_path = arxiv_downloader.download(arxiv_id)
+        
+        # 2. PDF 转图像 (前 10 页)
+        image_paths = pdf_processor.pdf_to_images(pdf_path, max_pages=10)
+        
+        results = []
+        results.append(f"## ArXiv ID: {arxiv_id} 自动复现报告\n")
+        
+        found_algorithm = False
+        for img_path in image_paths:
+            # 3. 询问 Gemini 该页是否有算法框图
+            check_prompt = "请判断这张论文页面中是否包含算法伪代码框图 (Algorithm/Pseudocode)？只需回答'是'或'否'。"
+            is_algo = engine.infer(img_path, check_prompt)
+            
+            if "是" in is_algo or "Yes" in is_algo:
+                found_algorithm = True
+                page_num = img_path.split("_p")[-1].split(".")[0]
+                results.append(f"### 发现算法：第 {int(page_num)+1} 页")
+                
+                # 4. 使用 DualStageProcessor 处理该页
+                # 调整 prompt 使其输出为 Python Class
+                processor.action_b_template = (
+                    "Convert the following LaTeX/Pseudocode into a clean Python Class.\n"
+                    "Formula/Algo: {latex}\n"
+                    "Requirements:\n"
+                    "1. Use a Class structure, implement the main logic in a method.\n"
+                    "2. Include docstrings and shape annotations.\n"
+                    "3. Provide the Shape Dictionary and Logic Spec JSONs at the end."
+                )
+                
+                res = processor.process(img_path)
+                
+                if res.get("validated"):
+                    results.append(f"```python\n{res.get('code')}\n```")
+                    results.append("✅ **自动验证通过**")
+                else:
+                    results.append(f"```python\n{res.get('code')}\n```")
+                    results.append(f"⚠️ **验证未完全通过**: {res.get('error', '未知错误')}")
+                
+                results.append("---\n")
+        
+        if not found_algorithm:
+            return f"在论文 {arxiv_id} 的前 10 页中未检测到明显的算法框图。"
+            
+        return "\n".join(results)
+        
+    except Exception as e:
+        return f"自动复现流程失败：{str(e)}"
 
 @mcp.tool()
 def analyze_equation(image_path: str) -> str:

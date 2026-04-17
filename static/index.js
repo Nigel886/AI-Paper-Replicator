@@ -5,6 +5,31 @@ const btnText = document.getElementById('btn-text');
 const previewContainer = document.getElementById('preview-container');
 const resultArea = document.getElementById('result-area');
 
+const modeUpload = document.getElementById('mode-upload');
+const modeArxiv = document.getElementById('mode-arxiv');
+const uploadContainer = document.getElementById('upload-container');
+const arxivContainer = document.getElementById('arxiv-container');
+const arxivInput = document.getElementById('arxiv-input');
+
+let currentMode = 'upload'; // 'upload' or 'arxiv'
+
+// --- Mode Switching ---
+modeUpload.onclick = () => {
+    currentMode = 'upload';
+    modeUpload.className = "px-6 py-2 rounded-full font-bold transition-all bg-slate-900 text-white shadow-lg";
+    modeArxiv.className = "px-6 py-2 rounded-full font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50";
+    uploadContainer.classList.remove('hidden');
+    arxivContainer.classList.add('hidden');
+};
+
+modeArxiv.onclick = () => {
+    currentMode = 'arxiv';
+    modeArxiv.className = "px-6 py-2 rounded-full font-bold transition-all bg-slate-900 text-white shadow-lg";
+    modeUpload.className = "px-6 py-2 rounded-full font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50";
+    arxivContainer.classList.remove('hidden');
+    uploadContainer.classList.add('hidden');
+};
+
 const overviewOutput = document.getElementById('overview-output');
 const codeOutput = document.getElementById('code-output');
 const insightsOutput = document.getElementById('insights-output');
@@ -110,8 +135,12 @@ window.copyCode = () => {
 
 // --- Execution Flow & API Integration ---
 replicateBtn.onclick = async () => {
-    if (selectedFiles.length === 0) {
+    if (currentMode === 'upload' && selectedFiles.length === 0) {
         alert("Please upload paper excerpts first.");
+        return;
+    }
+    if (currentMode === 'arxiv' && !arxivInput.value.trim()) {
+        alert("Please enter an ArXiv ID.");
         return;
     }
 
@@ -120,19 +149,29 @@ replicateBtn.onclick = async () => {
     btnText.innerHTML = '<span class="loader"></span>Analyzing Paper Content...';
     resultArea.classList.add('hidden');
 
-    const formData = new FormData();
-    selectedFiles.forEach(file => formData.append('files', file));
-    formData.append('output_name', 'model.py');
-
     try {
-        const response = await fetch('/replicate', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
+        let data;
+        if (currentMode === 'upload') {
+            const formData = new FormData();
+            selectedFiles.forEach(file => formData.append('files', file));
+            formData.append('output_name', 'model.py');
+
+            const response = await fetch('/replicate', {
+                method: 'POST',
+                body: formData
+            });
+            data = await response.json();
+        } else {
+            const response = await fetch('/replicate_arxiv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ arxiv_id: arxivInput.value.trim() })
+            });
+            data = await response.json();
+        }
 
         if (data.status === "success") {
+            // ArXiv mode might return multiple algorithms, but we'll use the same parser
             const result = parseLuminaResponse(data.analysis);
 
             // 1. Render Overview and Insights using the Protection Helper
