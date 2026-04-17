@@ -1,73 +1,92 @@
 # PureRepro: AI-Powered Research Paper Replication Engine
+> **English | [中文版](#中文介绍)**
 
-PureRepro is a professional tool designed to automate the replication of machine learning research papers. It transforms algorithm screenshots or ArXiv IDs into production-ready, framework-specific code (PyTorch, JAX, TensorFlow) with high-fidelity formula parsing and logical validation.
+PureRepro is a professional engineering framework designed to bridge the gap between AI research papers and production-ready code. It automates the extraction, implementation, and validation of complex machine learning algorithms with high precision and observable workflows.
 
-## 🚀 Key Features
+---
 
-- **One-Click ArXiv Replication**: Enter an ArXiv ID, and PureRepro will download the PDF, extract algorithm blocks, and generate code automatically.
-- **Dual-Stage Validation**:
-    - **Shape Validation**: Runtime execution with synthetic tensors to catch dimension mismatches.
-    - **Logic Validation**: AST-based static analysis to ensure mathematical operator consistency.
-- **Multi-Framework Support**: Generate code for PyTorch, JAX, or TensorFlow.
-- **High-Precision Formula Parsing**: Specialized `LatexExpert` engine for extracting complex mathematical notations.
-- **MCP Native**: Fully integrated with the Model Context Protocol for use in AI desktops (Claude Desktop, etc.).
+## 🌟 Key Advantages & Advanced Features
 
-## 📊 Benchmark Results
+### 1. Dual-Stage Vision-to-Code Pipeline
+Unlike generic OCR, PureRepro employs a specialized two-stage prompting strategy:
+- **Vision-to-LaTeX**: Extracts raw mathematical notations with high fidelity, preserving every subscript and operator.
+- **LaTeX-to-Implementation**: Transforms structural logic into clean, modular code (PyTorch/JAX/TF) with comprehensive shape annotations.
 
-PureRepro outperforms general-purpose LLMs in specialized mathematical formula parsing.
+### 2. Automated Rigorous Validation
+PureRepro doesn't just generate code; it ensures it *works*:
+- **Shape Validation**: Automatically generates synthetic tensors to execute the code in a sandbox, catching dimension mismatches instantly.
+- **Logic Consistency**: Uses AST-based static analysis to verify that the mathematical operators in the code strictly match the source paper's logic.
 
-| Model | Formula Parsing Accuracy |
-| :--- | :--- |
-| **PureRepro (Ours)** | **~90%** |
-| GPT-4o (Vision) | 82.5% |
-| Claude 3.5 Sonnet | 85.0% |
+### 3. Professional Observability (SSE-Based)
+For long-running ArXiv replication tasks, PureRepro provides real-time visibility:
+- **Streaming Progress**: Powered by Server-Sent Events (SSE), showing every step from PDF download to algorithm scanning.
+- **Emergency Shutdown**: A full-stack interrupt mechanism allows users to halt the engine instantly during complex retry loops.
 
-*Results based on the `benchmark/samples` set of 20 complex ML formulas.*
+### 4. Resilient Engineering for Scale
+- **Smart Rate-Limiting**: Global thread-locking and segmented sleep ensure compliance with API limits (e.g., Gemini 15 RPM) while maintaining responsiveness.
+- **Async Architecture**: Decoupled execution using `BackgroundTasks` ensures that network interruptions don't kill long-running analysis.
+
+---
 
 ## 🛠 Installation & Usage
 
 ### 1. One-Click Run (Docker)
-Ensure you have Docker and Docker Compose installed.
-
 ```bash
-# 1. Clone the repository
 git clone https://github.com/your-repo/PureRepro.git
 cd PureRepro
-
-# 2. Add your GEMINI_API_KEY to a .env file
 echo "GEMINI_API_KEY=your_key_here" > .env
-
-# 3. Build and run
 docker-compose up --build
 ```
-The application will be available at `http://localhost:8000`.
+Access the UI at `http://localhost:8000`.
 
 ### 2. Local Setup
 ```bash
-# 1. Create environment
-conda create -n PureRepro_env python=3.10
-conda activate PureRepro_env
-
-# 2. Install dependencies
+conda create -n PureRepro_env python=3.10 && conda activate PureRepro_env
 pip install -r requirements.txt
-
-# 3. Run the server
 python api.py
 ```
 
-## 🧪 Running Benchmarks
-Evaluate the engine against our internal dataset:
-```bash
-python benchmark/eval.py
-```
-Reports will be saved in `benchmark/logs/`.
+---
 
 ## 📂 Project Structure
-- `core/`: Core engine, processors, and validators.
-- `api.py`: FastAPI backend.
-- `static/`: Modern Web UI.
-- `mcp_server.py`: Model Context Protocol server.
-- `benchmark/`: Precision evaluation set and logic.
+- `core/`: High-precision processors and dual-loop validators.
+- `api.py`: Robust FastAPI backend with async task management.
+- `static/`: Modern, bilingual Web UI with real-time SSE logs.
+- `mcp_server.py`: Model Context Protocol server for AI IDE integration.
+- `benchmark/`: Automated precision evaluation suite.
 
-## 🎓 About
-Developed for academic research replication and high-precision code generation.
+---
+
+<br id="中文介绍">
+
+# PureRepro: AI 驱动的论文自动化复现引擎
+
+PureRepro 是一个专业的工程框架，旨在弥合 AI 研究论文与生产级代码之间的鸿沟。它能以极高的精度和可观测的工作流，自动完成复杂机器学习算法的提取、实现与验证。
+
+---
+
+## 🌟 核心优势与先进特性
+
+### 1. 双阶段“视觉到代码”流水线
+不同于通用的 OCR，PureRepro 采用了专门的双阶段提示策略：
+- **视觉转 LaTeX**: 以高保真度提取原始数学符号，保留每一个下标和算子。
+- **LaTeX 转代码实现**: 将结构化逻辑转化为清晰、模块化的代码（PyTorch/JAX/TF），并附带完整的张量维度注释。
+
+### 2. 自动化严苛验证
+PureRepro 不仅仅是生成代码，它还能确保代码**真实可用**：
+- **维度验证 (Shape Validation)**: 自动生成模拟张量并在沙盒中运行代码，瞬间捕获维度不匹配错误。
+- **逻辑一致性检查**: 利用基于 AST 的静态分析，验证代码中的数学算子是否与原始论文逻辑严格一致。
+
+### 3. 专业级可观测性 (基于 SSE)
+针对耗时较长的 ArXiv 复现任务，PureRepro 提供了实时的透明度：
+- **流式进度推送**: 基于 SSE 技术，实时展示从 PDF 下载到算法扫描的每一步细节。
+- **紧急熔断机制**: 全栈中断机制允许用户在复杂的重试循环中瞬间停止引擎。
+
+### 4. 高可靠工程设计
+- **智能频率限制**: 通过全局线程锁和分段休眠，在严格遵守 API 频率限制（如 Gemini 15 RPM）的同时保持系统响应。
+- **异步解耦架构**: 使用 `BackgroundTasks` 实现执行与请求的解耦，确保网络波动不会中断耗时分析任务。
+
+---
+
+## 🎓 开发愿景
+PureRepro 专为学术研究复现和高精度代码生成而设计，致力于提升 AI 论文向工业界转化的效率。

@@ -4,6 +4,9 @@ const replicateBtn = document.getElementById('replicate-btn');
 const btnText = document.getElementById('btn-text');
 const previewContainer = document.getElementById('preview-container');
 const resultArea = document.getElementById('result-area');
+const stopBtn = document.getElementById('stop-btn');
+const langToggle = document.getElementById('lang-toggle');
+const langText = document.getElementById('lang-text');
 
 const modeUpload = document.getElementById('mode-upload');
 const modeArxiv = document.getElementById('mode-arxiv');
@@ -13,6 +16,123 @@ const arxivInput = document.getElementById('arxiv-input');
 const frameworkSelect = document.getElementById('framework-select');
 
 let currentMode = 'upload'; // 'upload' or 'arxiv'
+let currentLang = 'en'; // 'en' or 'zh'
+
+const translations = {
+    en: {
+        subtitle: "Professional AI Paper Replication Engine",
+        dropTitle: "Drag & drop paper excerpts here",
+        dropDesc: "Upload architecture diagrams, formulas, or method descriptions for concurrent analysis",
+        arxivTitle: "Enter ArXiv ID",
+        arxivDesc: "Download paper automatically and extract all algorithm blocks",
+        targetFramework: "Target Framework",
+        startBtn: "Start Replication",
+        runningBtn: "Running Engine...",
+        stopBtn: "Emergency Stop Engine",
+        resultOverview: "Research Overview",
+        resultCode: "Implementation Code",
+        resultInsights: "Key Engineering Insights",
+        copyBtn: "Copy Source",
+        copiedBtn: "Copied!",
+        alertUpload: "Please upload paper excerpts first.",
+        alertArxiv: "Please enter an ArXiv ID.",
+        alertFail: "Analysis failed: ",
+        alertConnect: "Could not connect to PureRepro Backend!",
+        alertResult: "Could not retrieve final results.",
+        // Progress Messages
+        progInit: "Initializing...",
+        progSaving: "Saving files...",
+        progAnalyzing: "Analyzing with Gemini...",
+        progDownloading: "Downloading PDF...",
+        progConverting: "Converting PDF...",
+        progScanning: "Scanning page ",
+        progFound: "Algorithm found!",
+        progExtracting: "Extracting LaTeX...",
+        progGenerating: "Generating code...",
+        progValidating: "Validating...",
+        progSuccess: "Success!",
+        progCompleted: "COMPLETED"
+    },
+    zh: {
+        subtitle: "专业级 AI 论文复现引擎",
+        dropTitle: "拖拽论文截图到此处",
+        dropDesc: "上传模型架构图、数学公式或方法描述进行并发分析",
+        arxivTitle: "输入 ArXiv ID",
+        arxivDesc: "自动下载论文并提取所有算法逻辑",
+        targetFramework: "目标框架",
+        startBtn: "开始复现",
+        runningBtn: "引擎运行中...",
+        stopBtn: "紧急停止引擎",
+        resultOverview: "研究概览",
+        resultCode: "实现代码",
+        resultInsights: "核心工程洞察",
+        copyBtn: "复制源码",
+        copiedBtn: "已复制!",
+        alertUpload: "请先上传论文截图。",
+        alertArxiv: "请输入 ArXiv ID。",
+        alertFail: "分析失败: ",
+        alertConnect: "无法连接到 PureRepro 后端！",
+        alertResult: "无法获取最终结果。",
+        // Progress Messages
+        progInit: "初始化中...",
+        progSaving: "保存文件中...",
+        progAnalyzing: "Gemini 分析中...",
+        progDownloading: "下载 PDF 中...",
+        progConverting: "PDF 转换中...",
+        progScanning: "正在扫描第 ",
+        progFound: "发现算法逻辑！",
+        progExtracting: "提取 LaTeX 中...",
+        progGenerating: "生成代码中...",
+        progValidating: "维度/逻辑验证中...",
+        progSuccess: "验证成功！",
+        progCompleted: "已完成"
+    }
+};
+
+function translateProgress(msg) {
+    const t = translations[currentLang];
+    if (msg.includes("Initializing")) return t.progInit;
+    if (msg.includes("Saving")) return t.progSaving;
+    if (msg.includes("Analyzing")) return t.progAnalyzing;
+    if (msg.includes("Downloading")) return t.progDownloading;
+    if (msg.includes("Converting")) return t.progConverting;
+    if (msg.includes("Scanning page")) return t.progScanning + msg.split("page")[1];
+    if (msg.includes("found")) return t.progFound;
+    if (msg.includes("Extracting")) return t.progExtracting;
+    if (msg.includes("Generating")) return t.progGenerating;
+    if (msg.includes("Validating") || msg.includes("Verifying")) return t.progValidating;
+    if (msg.includes("Success")) return t.progSuccess;
+    if (msg.includes("COMPLETED")) return t.progCompleted;
+    return msg;
+}
+
+function updateLanguageUI() {
+    const t = translations[currentLang];
+    langText.innerText = currentLang === 'en' ? 'English' : '中文';
+    
+    document.getElementById('t-subtitle').innerText = t.subtitle;
+    document.getElementById('t-drop-title').innerText = t.dropTitle;
+    document.getElementById('t-drop-desc').innerText = t.dropDesc;
+    document.getElementById('t-arxiv-title').innerText = t.arxivTitle;
+    document.getElementById('t-arxiv-desc').innerText = t.arxivDesc;
+    document.getElementById('t-target-framework').innerText = t.targetFramework;
+    document.getElementById('btn-text').innerText = t.startBtn;
+    document.getElementById('t-stop-engine').innerText = t.stopBtn;
+    document.getElementById('t-result-overview').innerText = t.resultOverview;
+    document.getElementById('t-result-code').innerText = t.resultCode;
+    document.getElementById('t-result-insights').innerText = t.resultInsights;
+    document.getElementById('t-copy-btn').innerText = t.copyBtn;
+
+    // Update buttons with data attributes
+    document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+}
+
+langToggle.onclick = () => {
+    currentLang = currentLang === 'en' ? 'zh' : 'en';
+    updateLanguageUI();
+};
 
 // --- Mode Switching ---
 modeUpload.onclick = () => {
@@ -46,6 +166,7 @@ let selectedFiles = [];
 // --- Progress Tracking Helper ---
 function startProgressTracking(taskId, onComplete) {
     progressContainer.classList.remove('hidden');
+    stopBtn.classList.remove('hidden'); // Show stop button
     progressLog.innerHTML = '';
     
     const eventSource = new EventSource(`/progress/${taskId}`);
@@ -56,6 +177,7 @@ function startProgressTracking(taskId, onComplete) {
         if (data.message === "COMPLETED") {
             eventSource.close();
             progressContainer.classList.add('hidden');
+            stopBtn.classList.add('hidden');
             if (onComplete) onComplete();
             return;
         }
@@ -63,13 +185,16 @@ function startProgressTracking(taskId, onComplete) {
         if (data.message.startsWith("FAILED")) {
             eventSource.close();
             progressContainer.classList.add('hidden');
+            stopBtn.classList.add('hidden');
             alert(data.message);
             if (onComplete) onComplete(new Error(data.message));
             return;
         }
+        
+        const translatedMsg = translateProgress(data.message);
 
         // Update UI
-        progressStatus.innerText = data.message;
+        progressStatus.innerText = translatedMsg;
         const percent = Math.round((data.step / data.total_steps) * 100);
         progressPercent.innerText = `${percent}%`;
         progressBar.style.width = `${percent}%`;
@@ -77,18 +202,28 @@ function startProgressTracking(taskId, onComplete) {
         // Add log entry
         const logEntry = document.createElement('div');
         logEntry.className = "mb-1 border-l-2 border-blue-200 pl-2";
-        logEntry.innerText = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+        logEntry.innerText = `[${new Date().toLocaleTimeString()}] ${translatedMsg}`;
         progressLog.appendChild(logEntry);
         progressLog.scrollTop = progressLog.scrollHeight;
     };
 
     eventSource.onerror = () => {
         eventSource.close();
-        // Don't hide container immediately on error, as it might be a temporary reconnect
     };
 
     return eventSource;
 }
+
+// --- Emergency Stop Logic ---
+stopBtn.onclick = async () => {
+    try {
+        await fetch('/stop', { method: 'POST' });
+        alert(currentLang === 'en' ? "Stop signal sent!" : "停止信号已发送！");
+        location.reload(); // Simple way to reset UI state
+    } catch (err) {
+        console.error("Stop failed:", err);
+    }
+};
 
 // --- UI Interaction Logic ---
 dropZone.onclick = () => fileInput.click();
@@ -179,30 +314,35 @@ function renderContentWithMath(element, rawText, isInline = false) {
 // --- Global Action Handlers ---
 window.copyCode = () => {
     const code = codeOutput.innerText;
+    const t = translations[currentLang];
     navigator.clipboard.writeText(code).then(() => {
-        const copyBtn = document.querySelector('button[onclick="copyCode()"]');
+        const copyBtn = document.getElementById('t-copy-btn');
         const originalText = copyBtn.innerText;
-        copyBtn.innerText = "Copied!";
+        copyBtn.innerText = t.copiedBtn;
         setTimeout(() => copyBtn.innerText = originalText, 2000);
     });
 };
 
 // --- Execution Flow & API Integration ---
 replicateBtn.onclick = async () => {
+    const t = translations[currentLang];
     if (currentMode === 'upload' && selectedFiles.length === 0) {
-        alert("Please upload paper excerpts first.");
+        alert(t.alertUpload);
         return;
     }
     if (currentMode === 'arxiv' && !arxivInput.value.trim()) {
-        alert("Please enter an ArXiv ID.");
+        alert(t.alertArxiv);
         return;
     }
 
     // UI State: Loading Initialization
     replicateBtn.disabled = true;
-    btnText.innerHTML = '<span class="loader"></span>Running Engine...';
+    btnText.innerHTML = `<span class="loader"></span>${t.runningBtn}`;
     resultArea.classList.add('hidden');
     
+    // Reset any previous shutdown signal
+    await fetch('/reset', { method: 'POST' });
+
     // Generate a unique task ID for this session
     const taskId = 'task_' + Math.random().toString(36).substr(2, 9);
 
@@ -210,7 +350,7 @@ replicateBtn.onclick = async () => {
     const onTaskFinished = async (error) => {
         if (error) {
             replicateBtn.disabled = false;
-            btnText.innerText = 'Start Replication';
+            btnText.innerText = t.startBtn;
             return;
         }
 
@@ -253,14 +393,14 @@ replicateBtn.onclick = async () => {
 
                 resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
-                alert("Analysis failed to retrieve result.");
+                alert(t.alertResult);
             }
         } catch (err) {
             console.error("Result Fetch Error:", err);
-            alert("Could not retrieve final results.");
+            alert(t.alertResult);
         } finally {
             replicateBtn.disabled = false;
-            btnText.innerText = 'Start Replication';
+            btnText.innerText = t.startBtn;
         }
     };
 
@@ -274,10 +414,8 @@ replicateBtn.onclick = async () => {
             formData.append('framework', frameworkSelect.value);
             formData.append('task_id', taskId);
 
-            // 文件上传模式也改为后台处理（此处后端逻辑暂未完全统一，但前端先适配 taskId）
             await fetch('/replicate', { method: 'POST', body: formData });
         } else {
-            // ArXiv 模式：触发即走，不等待响应中的 analysis 字段
             await fetch('/replicate_arxiv', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -290,8 +428,11 @@ replicateBtn.onclick = async () => {
         }
     } catch (error) {
         console.error("Submission Error:", error);
-        alert("Could not connect to PureRepro Backend!");
+        alert(t.alertConnect);
         replicateBtn.disabled = false;
-        btnText.innerText = 'Start Replication';
+        btnText.innerText = t.startBtn;
     }
 };
+
+// Initialize language
+updateLanguageUI();

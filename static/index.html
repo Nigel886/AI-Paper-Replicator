@@ -39,17 +39,25 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20">
+    <!-- Language Toggle -->
+    <div class="fixed top-6 right-6 z-50">
+        <button id="lang-toggle" class="bg-white/80 backdrop-blur-md border border-slate-200 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all font-bold text-slate-700 flex items-center space-x-2">
+            <span id="lang-text">English</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </button>
+    </div>
+
     <div class="max-w-5xl mx-auto py-12 px-4">
         <!-- Header Section -->
         <div class="text-center mb-12">
             <h1 class="text-5xl font-extrabold text-slate-900 tracking-tight mb-3 italic">PureRepro</h1>
-            <p class="text-lg text-slate-600 font-medium tracking-wide">Professional AI Paper Replication Engine</p>
+            <p id="t-subtitle" class="text-lg text-slate-600 font-medium tracking-wide">Professional AI Paper Replication Engine</p>
         </div>
 
         <!-- Mode Switcher -->
         <div class="flex justify-center space-x-4 mb-8">
-            <button id="mode-upload" class="px-6 py-2 rounded-full font-bold transition-all bg-slate-900 text-white shadow-lg">Screenshot Mode</button>
-            <button id="mode-arxiv" class="px-6 py-2 rounded-full font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">ArXiv Mode</button>
+            <button id="mode-upload" class="px-6 py-2 rounded-full font-bold transition-all bg-slate-900 text-white shadow-lg" data-en="Screenshot Mode" data-zh="截图模式">Screenshot Mode</button>
+            <button id="mode-arxiv" class="px-6 py-2 rounded-full font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50" data-en="ArXiv Mode" data-zh="ArXiv 模式">ArXiv Mode</button>
         </div>
 
         <!-- Image Upload Area (Screenshot Mode) -->
@@ -63,8 +71,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xl font-semibold text-slate-800">Drag & drop paper excerpts here</p>
-                        <p class="text-slate-500 mt-1 text-sm">Upload architecture diagrams, formulas, or method descriptions for concurrent analysis</p>
+                        <p id="t-drop-title" class="text-xl font-semibold text-slate-800">Drag & drop paper excerpts here</p>
+                        <p id="t-drop-desc" class="text-slate-500 mt-1 text-sm">Upload architecture diagrams, formulas, or method descriptions for concurrent analysis</p>
                     </div>
                     <!-- Preview Container -->
                     <div id="preview-container" class="flex flex-wrap gap-3 justify-center mt-6"></div>
@@ -82,8 +90,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xl font-semibold text-slate-800">Enter ArXiv ID</p>
-                        <p class="text-slate-500 mt-1 text-sm">Download paper automatically and extract all algorithm blocks</p>
+                        <p id="t-arxiv-title" class="text-xl font-semibold text-slate-800">Enter ArXiv ID</p>
+                        <p id="t-arxiv-desc" class="text-slate-500 mt-1 text-sm">Download paper automatically and extract all algorithm blocks</p>
                     </div>
                     <div class="relative">
                         <input type="text" id="arxiv-input" placeholder="e.g. 2305.16300" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-center font-bold text-lg">
@@ -95,7 +103,7 @@
         <!-- Execution Button -->
         <div class="flex flex-col space-y-4">
             <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-slate-700 font-bold ml-2">Target Framework</span>
+                <span id="t-target-framework" class="text-slate-700 font-bold ml-2">Target Framework</span>
                 <select id="framework-select" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="PyTorch">PyTorch</option>
                     <option value="JAX">JAX</option>
@@ -120,6 +128,12 @@
             <button id="replicate-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center group">
                 <span id="btn-text">Start Replication</span>
             </button>
+            
+            <!-- Stop Button -->
+            <button id="stop-btn" class="hidden w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-2xl transition-all flex items-center justify-center space-x-2 border border-red-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H10a1 1 0 01-1-1v-4z"></path></svg>
+                <span id="t-stop-engine">Emergency Stop Engine</span>
+            </button>
         </div>
 
         <!-- Structured Result Section -->
@@ -129,7 +143,7 @@
             <section class="bg-blue-50 rounded-3xl p-8 border border-blue-100 shadow-sm">
                 <div class="flex items-center space-x-3 mb-4">
                     <span class="text-2xl">🔬</span>
-                    <h2 class="text-2xl font-bold text-blue-900 font-sans">Research Overview</h2>
+                    <h2 id="t-result-overview" class="text-2xl font-bold text-blue-900 font-sans">Research Overview</h2>
                 </div>
                 <div id="overview-output" class="text-blue-900/80 leading-relaxed text-lg italic bg-white/50 p-6 rounded-2xl border border-blue-200/50">
                     <!-- Synthesized research summary injected here -->
@@ -141,9 +155,9 @@
                 <div class="flex items-center justify-between mb-4 px-2">
                     <div class="flex items-center space-x-3">
                         <span class="text-2xl">💻</span>
-                        <h2 class="text-2xl font-bold text-slate-800">Implementation Code</h2>
+                        <h2 id="t-result-code" class="text-2xl font-bold text-slate-800">Implementation Code</h2>
                     </div>
-                    <button onclick="copyCode()" class="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-5 py-2 rounded-full transition-colors active:bg-blue-100">
+                    <button onclick="copyCode()" id="t-copy-btn" class="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-5 py-2 rounded-full transition-colors active:bg-blue-100">
                         Copy Source
                     </button>
                 </div>
@@ -163,7 +177,7 @@
             <section class="bg-amber-50 rounded-3xl p-8 border border-amber-100 shadow-sm">
                 <div class="flex items-center space-x-3 mb-4">
                     <span class="text-2xl">💡</span>
-                    <h2 class="text-2xl font-bold text-amber-900">Key Engineering Insights</h2>
+                    <h2 id="t-result-insights" class="text-2xl font-bold text-amber-900">Key Engineering Insights</h2>
                 </div>
                 <div id="insights-output" class="text-amber-900/80 space-y-3 text-lg font-medium">
                     <!-- Critical technical nuances injected here -->
